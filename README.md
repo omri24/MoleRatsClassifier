@@ -24,7 +24,7 @@ Therefore, classification in time domain was chosen over classification in frequ
 ## The classifier
 The classifier consists of 2 parts:
 
-1. WavLM encoder, description in this paper: https://arxiv.org/abs/2110.13900, and in HuggingFace: https://huggingface.co/microsoft/wavlm-base-plus-sv.
+1. WavLM encoder, suitable for speech recognition. Description in this paper: https://arxiv.org/abs/2110.13900, and in HuggingFace: https://huggingface.co/microsoft/wavlm-base-plus-sv.
 2. Classification over the embedding space of the encoder, a few methods were tested.
 
 Over all, the classification is between 5 classes of BMR and one class of noise (6 classes in total).
