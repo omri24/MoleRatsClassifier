@@ -147,7 +147,7 @@ if run_knn:
     calc_time = round(timer_stop - timer_start, 4)
     results_table.add_row([f"KNN (k = {k})", accuracy, calc_time])
 
-# SVM (number of classes is detected automatically according to the labels lst)
+# SVM
 if run_svm:
     timer_start = time.time()
 
