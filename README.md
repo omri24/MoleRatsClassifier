@@ -1,5 +1,5 @@
 # MoleRatsClassifier
-****
+
 ## General description
 
 Blind mole rats (BMR) are mammals that live under-ground and communicate by ramming their heads against their tunnel walls.
