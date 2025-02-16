@@ -5,10 +5,12 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 import seaborn as sns
 
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.metrics import confusion_matrix
+from sklearn.metrics import accuracy_score
 
 # KNN
 class KNNClassifier:
@@ -46,6 +48,94 @@ class FullyConnectedNN(nn.Module):
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
         return x
+
+class DropoutMLP(nn.Module):
+    def __init__(self, input_size, hidden_size1, hidden_size2, output_size, drop_out_param):
+        super(DropoutMLP, self).__init__()
+        self.classifier = nn.Sequential(
+            nn.Linear(input_size, hidden_size1),
+            nn.ReLU(),
+            nn.Dropout(drop_out_param),
+            nn.Linear(hidden_size1, hidden_size2),
+            nn.ReLU(),
+            nn.Dropout(drop_out_param),
+            nn.Linear(hidden_size2, output_size)
+        )
+
+    def forward(self, x):
+        return self.classifier(x)
+
+
+class BatchNormMLP(nn.Module):
+    def __init__(self, input_size, hidden_size1, hidden_size2, hidden_size3, output_size, drop_out_param):
+        super(BatchNormMLP, self).__init__()
+        self.classifier = nn.Sequential(
+            nn.Linear(input_size, hidden_size1),
+            nn.BatchNorm1d(hidden_size1),
+            nn.ReLU(),
+            nn.Dropout(drop_out_param),
+            nn.Linear(hidden_size1, hidden_size2),
+            nn.BatchNorm1d(hidden_size2),
+            nn.ReLU(),
+            nn.Dropout(drop_out_param),
+            nn.Linear(hidden_size2, hidden_size3),
+            nn.ReLU(),
+            nn.Linear(hidden_size3, output_size)
+        )
+
+    def forward(self, x):
+        return self.classifier(x)
+
+
+class MoleRatsLSTM(nn.Module):
+    def __init__(self, input_dim, hidden_dim, num_layers, num_classes):
+        super(MoleRatsLSTM, self).__init__()
+        self.lstm = nn.LSTM(input_dim, hidden_dim, num_layers, batch_first=True)
+        self.fc = nn.Linear(hidden_dim, num_classes)
+
+    def forward(self, x):
+        _, (h_n, _) = self.lstm(x.unsqueeze(1))  # Add sequence dimension
+        return self.fc(h_n[-1])  # Use last hidden state
+
+
+def train_LSTM(model, train_loader, criterion, optimizer, device):
+    model.train()
+    total_loss = 0
+
+    for inputs, labels in train_loader:
+        inputs, labels = inputs.to(device), labels.to(device)
+
+        optimizer.zero_grad()
+        outputs = model(inputs)
+
+        loss = criterion(outputs, labels)
+        loss.backward()
+        optimizer.step()
+
+        total_loss += loss.item()
+
+    return total_loss / len(train_loader)
+
+
+def evaluate_LSTM(model, test_loader, criterion, device):
+    model.eval()
+    total_loss = 0
+    all_preds, all_labels = [], []
+
+    with torch.no_grad():
+        for inputs, labels in test_loader:
+            inputs, labels = inputs.to(device), labels.to(device)
+
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+            total_loss += loss.item()
+
+            preds = torch.argmax(outputs, dim=1)
+            all_preds.extend(preds.cpu().numpy())
+            all_labels.extend(labels.cpu().numpy())
+
+    accuracy = accuracy_score(all_labels, all_preds)
+    return total_loss / len(test_loader), accuracy
 
 def plot_confusion_matrix(preds: torch.Tensor, labels: torch.Tensor, class_names=None):
     """
