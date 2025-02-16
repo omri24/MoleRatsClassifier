@@ -14,7 +14,7 @@ from copy import deepcopy
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score, classification_report
 
-from utils import KNNClassifier, FullyConnectedNN, plot_confusion_matrix, plot_confusion_matrix_percentage
+from utils import KNNClassifier, FullyConnectedNN, plot_confusion_matrix, plot_confusion_matrix_percentage, prettytable_to_markdown
 from utils import DropoutMLP, BatchNormMLP, MoleRatsLSTM, train_LSTM, evaluate_LSTM
 
 from prettytable import PrettyTable
@@ -90,7 +90,7 @@ n_labels = label_alias["n_labels"]
 
 # Configurations (other)
 run_kmeams = True
-run_knn = False
+run_knn = True
 run_svm = True
 show_svm_report = False
 show_confusion_mat = False
@@ -471,7 +471,9 @@ if train_MoleRatsLSTM:
     results_table.add_row([f"LSTM", accuracy, calc_time])
 
 # Show results
-print(results_table)
+markdown_table = prettytable_to_markdown(results_table)
+print(markdown_table)
+
 
 if use_cross_entropy and show_confusion_mat and (train_MLP or train_dropout_MLP or train_batch_norm_MLP):
   if label_alias_to_use == 1:

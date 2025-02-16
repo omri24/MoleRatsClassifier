@@ -186,3 +186,19 @@ def plot_confusion_matrix_percentage(preds: torch.Tensor, labels: torch.Tensor, 
     plt.title("Confusion Matrix (%)")
     plt.show()
 
+# Convert PrettyTable to Markdown
+def prettytable_to_markdown(table):
+    # Extract column headers
+    headers = table.field_names
+    # Extract all rows
+    rows = table._rows
+
+    # Convert headers to Markdown format
+    md_table = "| " + " | ".join(headers) + " |\n"
+    md_table += "|-" + "-|-".join(["-" * len(header) for header in headers]) + "-|\n"
+
+    # Convert rows to Markdown format
+    for row in rows:
+        md_table += "| " + " | ".join(map(str, row)) + " |\n"
+
+    return md_table
