@@ -48,7 +48,7 @@ it is necessary to distinguish also between noise and BMR, not only between diff
 
 The plot shows samples containing pulses created by BMR, and samples containing only channel noise.  
 
-<img src="Embedding_space_plot.png" alt="Plot Example" width="1000" height="300">
+<img src="Embedding_space_plot.png" alt="Plot Example" width="1000" height="500">
 
 Some trends may be seen, however, it is not clear what makes the classification possible.
 
