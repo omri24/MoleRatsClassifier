@@ -326,7 +326,7 @@ if train_dropout_MLP:
 
     if use_cross_entropy:
         accuracy = round(accuracy.item(), 4)
-        results_table.add_row([f"FC-NN", accuracy, calc_time])
+        results_table.add_row([f"FC-NN with drop-out", accuracy, calc_time])
 
     print(f"\nThe data was classified {n_labels} classes.")
     labels_count = {}
@@ -409,7 +409,7 @@ if train_batch_norm_MLP:
 
     if use_cross_entropy:
         accuracy = round(accuracy.item(), 4)
-        results_table.add_row([f"FC-NN", accuracy, calc_time])
+        results_table.add_row([f"FC-NN with drop-out and batch-normalization", accuracy, calc_time])
 
     print(f"\nThe data was classified {n_labels} classes.")
     labels_count = {}
