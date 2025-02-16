@@ -21,13 +21,10 @@ The plots below show typical channel-noise, presented in time domain and in freq
 Out of the three representations of the data shown above, the clearest representation of the pulse is the time domain representation.
 Therefore, classification in time domain was chosen over classification in frequency domain.
 
-
-
-
 ## The classifier
 The classifier consists of 2 parts:
 
-1. WavLM encoder, description in this paper: https://arxiv.org/abs/2110.13900.
+1. WavLM encoder, description in this paper: https://arxiv.org/abs/2110.13900, and in HuggingFace: https://huggingface.co/microsoft/wavlm-base-plus-sv.
 2. Classification over the embedding space of the encoder, a few methods were tested.
 
 Over all, the classification is between 5 classes of BMR and one class of noise (6 classes in total).
