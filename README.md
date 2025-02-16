@@ -10,12 +10,18 @@ This project is done in cooperation with prof. Yossi Yovel from Tel-Aviv Univers
 The dataset consist of 5 different BMR that communicate. The audio is given in labeled multi-channel WAV files.
 
 ## Analyzing the data
-The plot shows a pulse created by a BMR, presented in time domain and in frequency domain (FFT and STFT). 
-Out of those three representations of the data, the clearest representation of the pulse is the time domain representation.
+The plots below show a pulse created by a BMR, presented in time domain and in frequency domain (FFT and STFT). 
+
+<img src="BMR in domains.png" alt="Plot Example" width="1000" height="1000">
+
+The plots below show typical channel-noise, presented in time domain and in frequency domain (FFT and STFT). 
+
+<img src="noise in domains.png" alt="Plot Example" width="1000" height="1000">
+
+Out of the three representations of the data shown above, the clearest representation of the pulse is the time domain representation.
 Therefore, classification in time domain was chosen over classification in frequency domain.
 
 
-<img src="BMR in domains.png" alt="Plot Example" width="1000" height="1000">
 
 
 ## The classifier
