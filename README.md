@@ -37,15 +37,15 @@ it is necessary to distinguish also between noise and BMR, not only between diff
 
 ## Results
 
-| Classification method | Accuracy, range: [0-1] | Training time, HW: NVIDIA GeForce MX450 [sec] |
-|-----------------------|------------------------|-----------------------------------------------|
-| K-means | 0.0612 | 0.3749 |
-| KNN (k = 3) | 0.7146 | 10.157 |
-| SVM (rbf kernel) | 0.7353 | 1.6959 |
-| FC-NN | 0.7777 | 5.3749 |
-| FC-NN with drop-out | 0.7797 | 21.5029 |
-| FC-NN with drop-out and batch-normalization | 0.7746 | 21.0224 |
-| LSTM | 0.7797 | 22.9475 |
+| Classification method                | Accuracy, range: [0-1] | Training time, HW: NVIDIA GeForce MX450 [sec] |
+|--------------------------------------|------------------------|-----------------------------------------------|
+| K-means                              | 0.0612 | 0.3749 |
+| KNN (k = 3)                          | 0.7146 | 10.157 |
+| SVM (rbf kernel)                     | 0.7353 | 1.6959 |
+| FC-NN                                | 0.7777 | 5.3749 |
+| FC-NN, drop-out                      | 0.7797 | 21.5029 |
+| FC-NN, drop-out, batch-normalization | 0.7746 | 21.0224 |
+| LSTM                                 | 0.7797 | 22.9475 |
 
 Over all, maximal accuracy achieved is around 77%.
 
