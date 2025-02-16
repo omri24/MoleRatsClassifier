@@ -17,13 +17,12 @@ The classifier consists of 2 parts:
 
 ## Results
 
-
-| Classification method | Accuracy | Training time on NVIDIA GeForce MX450 [sec] |
-|-----------------------|----------|---------------------------------------------|
-| K-means | 0.0612 | 0.2224 |
-| KNN (k = 3) | 0.7146 | 9.1354 |
-| SVM (rbf kernel) | 0.7353 | 1.5177 |
-| FC-NN | 0.7735 | 5.3726 |
-| FC-NN | 0.7715 | 21.516 |
-| FC-NN | 0.7611 | 21.1105 |
-| LSTM | 0.7756 | 23.0618 |
+| Classification method | Accuracy, range: [0-1] | Training time, HW: NVIDIA GeForce MX450 [sec] |
+|-----------------------|------------------------|-----------------------------------------------|
+| K-means | 0.0612 | 0.2118 |
+| KNN (k = 3) | 0.7146 | 9.0969 |
+| SVM (rbf kernel) | 0.7353 | 15.4334 |
+| FC-NN | 0.7735 | 5.3698 |
+| FC-NN | 0.7673 | 21.4524 |
+| FC-NN | 0.7663 | 21.0988 |
+| LSTM | 0.7715 | 23.26 |

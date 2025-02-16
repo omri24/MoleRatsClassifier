@@ -106,7 +106,7 @@ if cpu_or_gpu != "cpu":
     hw_type = torch.cuda.get_device_name(0)
 else:
     hw_type = "CPU"
-results_table = PrettyTable(["Classification method", "Accuracy", f"Training time on {hw_type} [sec]"])
+results_table = PrettyTable(["Classification method", "Accuracy, range: [0-1]", f"Training time, HW: {hw_type} [sec]"])
 
 # Kmeans
 if run_kmeams:
