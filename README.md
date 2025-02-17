@@ -3,7 +3,7 @@
 ## General description
 
 Blind mole rats (BMR) are mammals that live under-ground and communicate by ramming their heads against their tunnel walls.
-Our goal is to distinguish between individual BMR, and hopefully to point-out properties of the audio that take part in the classification.
+The goal is to distinguish between individual BMR, and hopefully to point-out properties of the audio that take part in the classification.
 This project is done in cooperation with prof. Yossi Yovel from Tel-Aviv University. 
 
 ## The dataset
