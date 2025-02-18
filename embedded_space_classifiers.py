@@ -165,7 +165,7 @@ if run_svm:
     timer_stop = time.time()
     calc_time = round(timer_stop - timer_start, 4)
 
-    results_table.add_row([f"SVM ({kernel} kernel)", accuracy, calc_time])
+    results_table.add_row([f"SVM, {kernel} kernel", accuracy, calc_time])
 
     if show_svm_report:
         print("\nClassification Report:")
