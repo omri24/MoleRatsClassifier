@@ -91,8 +91,8 @@ If it was, accuracy rates in confusion matrix 2 (between noise and BMR pulses) w
 
 Confusion matrix 1: between the 6 classes (5 BMR and 1 noise).
 
-<img src="confusion mat 2 percentage.png" alt="Plot Example" width="1000" height="1000">
+<img src="confusion mat 2 percentage.png" alt="Plot Example" width="1000" height="700">
 
 Confusion matrix 2: between noise and BMR pulses.
 
-<img src="confusion mat 6 noise or BMR percentage.png" alt="Plot Example" width="1000" height="1000">
+<img src="confusion mat 6 noise or BMR percentage.png" alt="Plot Example" width="1000" height="700">
