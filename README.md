@@ -37,15 +37,15 @@ it is necessary to distinguish also between noise and BMR, not only between diff
 
 ## Results
 
-| Classification method (over embedding space) | Accuracy<br/> range: [0-1] | Training time<br/> HW: NVIDIA GeForce MX450 [sec] |
-|----------------------------------------------|-----------------------|----------------------------------------------|
-| K-means                                      | 0.0612                | 0.3749 |
-| KNN, k=3, cosine distance                    | 0.7146                | 10.157 |
-| SVM, rbf kernel                              | 0.7353                | 1.6959 |
-| FC-NN, 1 hedden layer                        | 0.7777                | 5.3749 |
-| FC-NN, 2 hidden layers, drop-out             | 0.7797                | 21.5029 |
-| FC-NN, 3 hidden layers, drop-out, batch-norm | 0.7746                | 21.0224 |
-| LSTM, using last hidden state                | 0.7797                | 22.9475 |
+| Classification method (over embedding space) | Accuracy<br/> Range: [0-1] | Training time<br/> HW: NVIDIA GeForce MX450 [sec] |
+|----------------------------------------------|----------------------------|----------------------------------------------|
+| K-means                                      | 0.0612                     | 0.3749 |
+| KNN, k=3, cosine distance                    | 0.7146                     | 10.157 |
+| SVM, rbf kernel                              | 0.7353                     | 1.6959 |
+| FC-NN, 1 hedden layer                        | 0.7777                     | 5.3749 |
+| FC-NN, 2 hidden layers, drop-out             | 0.7797                     | 21.5029 |
+| FC-NN, 3 hidden layers, drop-out, batch-norm | 0.7746                     | 21.0224 |
+| LSTM, using last hidden state                | 0.7797                     | 22.9475 |
 
 Over all, maximal accuracy achieved is around 77%.
 
