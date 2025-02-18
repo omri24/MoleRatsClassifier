@@ -145,7 +145,7 @@ if run_knn:
     print(f"Accuracy of WavLM with KNN (k = {k}): {accuracy}")
     timer_stop = time.time()
     calc_time = round(timer_stop - timer_start, 4)
-    results_table.add_row([f"KNN (k = {k})", accuracy, calc_time])
+    results_table.add_row([f"KNN, k={k}, cosine distance", accuracy, calc_time])
 
 # SVM
 if run_svm:

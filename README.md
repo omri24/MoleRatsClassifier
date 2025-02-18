@@ -37,15 +37,15 @@ it is necessary to distinguish also between noise and BMR, not only between diff
 
 ## Results
 
-| Classification method                        | Accuracy, range: [0-1] | Training time, HW: NVIDIA GeForce MX450 [sec] |
-|----------------------------------------------|------------------------|-----------------------------------------------|
-| K-means                                      | 0.0612 | 0.3749 |
-| KNN (k = 3)                                  | 0.7146 | 10.157 |
-| SVM (rbf kernel)                             | 0.7353 | 1.6959 |
-| FC-NN, 1 hedden layer                        | 0.7777 | 5.3749 |
-| FC-NN, 2 hidden layers, drop-out             | 0.7797 | 21.5029 |
-| FC-NN, 3 hidden layers, drop-out, batch-norm | 0.7746 | 21.0224 |
-| LSTM                                         | 0.7797 | 22.9475 |
+| Classification method (over embedding space) | Accuracy<br/> range: [0-1] | Training time<br/> HW: NVIDIA GeForce MX450 [sec] |
+|----------------------------------------------|-----------------------|----------------------------------------------|
+| K-means                                      | 0.0612                | 0.3749 |
+| KNN, k=3, cosine distance                    | 0.7146                | 10.157 |
+| SVM (rbf kernel)                             | 0.7353                | 1.6959 |
+| FC-NN, 1 hedden layer                        | 0.7777                | 5.3749 |
+| FC-NN, 2 hidden layers, drop-out             | 0.7797                | 21.5029 |
+| FC-NN, 3 hidden layers, drop-out, batch-norm | 0.7746                | 21.0224 |
+| LSTM                                         | 0.7797                | 22.9475 |
 
 Over all, maximal accuracy achieved is around 77%.
 
@@ -59,5 +59,8 @@ Some trends may be seen, however, it is not clear what makes the classification 
 
 ## Conclusions
 
-Empirically, classification between different BMR individuals and between noise is demonstrated.
-However, the properties of the audio that allow the classification are not clear.
+1. Empirically, classification between different BMR individuals and between noise is demonstrated.
+2. The properties of the audio that allow the classification are not clear.
+3. Almost all classification methods over the embedding space resulted in similar accuracy.
+4. Conclusion from #3 - the WavLM encoder used, that was trained for speech recognition and speaker verification tasks on human language, 
+preforms well in the equivalent tasks for BMR 'language'.
