@@ -60,7 +60,15 @@ Some trends may be seen, however, it is not clear what makes the classification 
 ## Conclusions
 
 1. Empirically, classification between different BMR individuals and between noise is demonstrated.
-2. The properties of the audio that allow the classification are not clear.
-3. Almost all classification methods over the embedding space resulted in similar accuracy.
-4. Conclusion from #3 - the WavLM encoder used, that was trained for speech recognition and speaker verification tasks on human language, 
+
+
+2. Almost all classification methods over the embedding space resulted in similar accuracy, 
+which implies that the encoder is the significant part of the classification, not the classifiers over the embedding space. 
+
+
+3. Conclusion from #3 - the WavLM encoder used, that was trained for speech recognition and speaker verification tasks on human language, 
 preforms well in the equivalent tasks for BMR 'language'.
+
+
+4. The properties of the audio that allow the classification are not clear, 
+as could be expected, since deep learning algorithms are in that sense 'black-boxes' - it's almost impossible to point out why they decide one way or another. 
