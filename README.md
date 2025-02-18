@@ -73,7 +73,7 @@ Some trends may be seen, however, it is not clear what makes the classification 
 which implies that the encoder is the significant part of the classification, not the classifiers over the embedding space. 
 
 
-3. Conclusion from #3 - the WavLM encoder used, that was trained for speech recognition and speaker verification tasks on human language, 
+3. Conclusion from #2 - the WavLM encoder used, that was trained for speech recognition and speaker verification tasks on human language, 
 preforms well in the equivalent tasks for BMR 'language'.
 
 
