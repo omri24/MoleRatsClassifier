@@ -93,7 +93,7 @@ run_kmeams = True
 run_knn = True
 run_svm = True
 show_svm_report = False
-show_confusion_mat = False
+show_confusion_mat = True
 train_MLP = True
 train_dropout_MLP = True
 train_batch_norm_MLP = True
@@ -478,12 +478,12 @@ print(markdown_table)
 if use_cross_entropy and show_confusion_mat and (train_MLP or train_dropout_MLP or train_batch_norm_MLP):
   if label_alias_to_use == 1:
     class_names = ["Noise", "Abe", "Phoenix", "Bubba", "Tulsi", "Little"]
-    plot_confusion_matrix(predicted, test_labels, class_names)
-    plot_confusion_matrix_percentage(predicted, test_labels, class_names)
+    plot_confusion_matrix(predicted, y_test, class_names)
+    plot_confusion_matrix_percentage(predicted, y_test, class_names)
 
     m_f_label_alias = {0:0, 1:1, 2:2, 3:1, 4:2, 5:2}
     predicted_m_f = [m_f_label_alias[i] for i in predicted.tolist()]
-    test_labels_m_f = [m_f_label_alias[i] for i in test_labels.tolist()]
+    test_labels_m_f = [m_f_label_alias[i] for i in y_test.tolist()]
     predicted_m_f = torch.tensor(predicted_m_f)
     test_labels_m_f = torch.tensor(test_labels_m_f)
     class_names_m_f = ["Noise", "Male", "Female"]
@@ -493,7 +493,7 @@ if use_cross_entropy and show_confusion_mat and (train_MLP or train_dropout_MLP 
 
     is_noise_label_alias = {0:0, 1:1, 2:1, 3:1, 4:1, 5:1}
     predicted_is_noise = [is_noise_label_alias[i] for i in predicted.tolist()]
-    test_labels_is_noise = [is_noise_label_alias[i] for i in test_labels.tolist()]
+    test_labels_is_noise = [is_noise_label_alias[i] for i in y_test.tolist()]
     predicted_is_noise = torch.tensor(predicted_is_noise)
     test_labels_is_noise = torch.tensor(test_labels_is_noise)
     class_names_is_noise = ["Noise", "Mole-rat (any)"]
