@@ -243,7 +243,7 @@ if train_MLP:
 
     if use_cross_entropy:
         accuracy = round(accuracy.item(), 4)
-        results_table.add_row([f"FC-NN", accuracy, calc_time])
+        results_table.add_row([f"FC-NN, 1 hidden layer", accuracy, calc_time])
 
     print(f"\nThe data was classified {n_labels} classes.")
     labels_count = {}
@@ -319,14 +319,14 @@ if train_dropout_MLP:
         if use_cross_entropy:
             predicted = torch.argmax(test_outputs, dim=1)
             accuracy = (predicted == y_test).float().mean()
-            print(f"Test Accuracy (cross entropy loss and 1 hidden layer): {round(accuracy.item(), 4)}")
+            print(f"Test Accuracy (cross entropy loss and 2 hidden layers): {round(accuracy.item(), 4)}")
         else:
             mse = criterion(test_outputs, y_test)
             print(f"Test Mean Squared Error: {mse.item():.4f}")
 
     if use_cross_entropy:
         accuracy = round(accuracy.item(), 4)
-        results_table.add_row([f"FC-NN, drop-out", accuracy, calc_time])
+        results_table.add_row([f"FC-NN, 2 hidden layers, drop-out", accuracy, calc_time])
 
     print(f"\nThe data was classified {n_labels} classes.")
     labels_count = {}
@@ -402,14 +402,14 @@ if train_batch_norm_MLP:
         if use_cross_entropy:
             predicted = torch.argmax(test_outputs, dim=1)
             accuracy = (predicted == y_test).float().mean()
-            print(f"Test Accuracy (cross entropy loss and 1 hidden layer): {round(accuracy.item(), 4)}")
+            print(f"Test Accuracy (cross entropy loss and 3 hidden layers): {round(accuracy.item(), 4)}")
         else:
             mse = criterion(test_outputs, y_test)
             print(f"Test Mean Squared Error: {mse.item():.4f}")
 
     if use_cross_entropy:
         accuracy = round(accuracy.item(), 4)
-        results_table.add_row([f"FC-NN, drop-out, batch-norm", accuracy, calc_time])
+        results_table.add_row([f"FC-NN, 3 hidden layers, drop-out, batch-norm", accuracy, calc_time])
 
     print(f"\nThe data was classified {n_labels} classes.")
     labels_count = {}
