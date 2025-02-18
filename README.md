@@ -6,14 +6,14 @@ Blind mole rats (BMR) are mammals that live in tunnels under-ground
 and communicate by ramming their heads against the tunnel walls.
 
 This project has 2 goals:  
-1. Distinguishing between the sounds produced by different individual BMR.
+1. Distinguishing between sounds produced by different individual BMR.
 2. Pointing out audio properties that take part in the classification.
 
 The data used in the project was provided by prof. Yossi Yovel from Tel-Aviv University. 
 
 ## The dataset
 The dataset contains recordings of 5 different BMR. 
-The audio is given in labeled multi-channel WAV files.
+The audio is given in labeled multi-channel .WAV files.
 
 ## Analyzing the data
 The plots below show a pulse created by a BMR, 
@@ -25,13 +25,13 @@ The plots below show typical channel-noise, presented in time domain and in freq
 
 <img src="noise in domains.png" alt="Plot Example" width="1000" height="1000">
 
-Out of the 3 representations of the data shown above, the clearest representation of the pulse is the time domain representation.
+Out of the 3 representations of the data, the clearest representation of the pulse is the time domain representation.
 Therefore, classification in time domain was chosen over classification in frequency domain.
 
 ## The classifier
 The classifier consists of 2 parts:
 
-1. WavLM encoder, suitable for speech recognition. Description in this paper: https://arxiv.org/abs/2110.13900, and in HuggingFace: https://huggingface.co/microsoft/wavlm-base-plus-sv.
+1. WavLM encoder, suitable for speech recognition and speaker verification tasks. Description in this paper: https://arxiv.org/abs/2110.13900, and in HuggingFace: https://huggingface.co/microsoft/wavlm-base-plus-sv.
 2. Classification over the embedding space of the encoder, a few methods were tested.
 
 Over all, the classification is between 5 classes of BMR and one class of noise (6 classes in total).
