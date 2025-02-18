@@ -2,15 +2,19 @@
 
 ## General description
 
-Blind mole rats (BMR) are mammals that live under-ground and communicate by ramming their heads against their tunnel walls.
-The goal is to distinguish between individual BMR, and hopefully to point-out properties of the audio that take part in the classification.
+Blind mole rats (BMR) are mammals that live in tunnels under-ground 
+and communicate by ramming their heads against the tunnel walls.
+The goal is to distinguish between individual BMR, 
+and hopefully to point-out properties of the audio that take part in the classification.
 The data used in the project was provided by prof. Yossi Yovel from Tel-Aviv University. 
 
 ## The dataset
-The dataset consist of 5 different BMR that communicate. The audio is given in labeled multi-channel WAV files.
+The dataset consist of 5 different BMR that communicate. 
+The audio is given in labeled multi-channel WAV files.
 
 ## Analyzing the data
-The plots below show a pulse created by a BMR, presented in time domain and in frequency domain (FFT and STFT). 
+The plots below show a pulse created by a BMR, 
+presented in time domain and in frequency domain (FFT and STFT). 
 
 <img src="BMR in domains.png" alt="Plot Example" width="1000" height="1000">
 
