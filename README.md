@@ -39,22 +39,21 @@ Over all, the classification is between 5 classes of BMR and one class of noise 
 
 ## Noise handling
 Initially, the recordings were sampled uniformly, to get a notion for how significant is the noise. 
-Classification between samples from different recordings reached accuracy of about 90%. 
+Classification between samples from different recordings reached accuracy of about 80%. 
 
 The conclusion is that the background noise is significant, and in order to get a valid classifier, 
 it is necessary to distinguish also between noise and recorded BMR, not only between pulses created by different BMR.
 
 ## Results
-
-| Classification method <br/>Over embedding space | Accuracy<br/> Range: [0-1] | Total training time<br/> HW: NVIDIA GeForce MX450 [sec] |
-|-------------------------------------------------|----------------------------|---------------------------------------------------------|
-| K-means                                         | 0.0612                     | 0.3749                                                  |
-| KNN, k=3, cosine distance                       | 0.7146                     | 10.157                                                  |
-| SVM, rbf kernel                                 | 0.7353                     | 1.6959                                                  |
-| FC-NN (MLP), 1 hedden layer                     | 0.7777                     | 5.3749                                                  |
-| FC-NN (MLP), 2 hidden layers, drop-out          | 0.7797                     | 21.5029                                                 |
-| FC-NN (MLP), 3 hidden layers, drop-out, batch-norm   | 0.7746                     | 21.0224                                                 |
-| LSTM, using last hidden state                   | 0.7797                     | 22.9475                                                 |
+| Classification method | Accuracy, range: [0-1] | Training time, HW: NVIDIA GeForce MX450 [sec] |
+|-----------------------|------------------------|-----------------------------------------------|
+| K-means | 0.0612 | 0.2541 |
+| KNN, k=3, cosine distance | 0.7146 | 10.189 |
+| SVM, rbf kernel | 0.7353 | 1.7609 |
+| FC-NN, 1 hidden layer | 0.7725 | 1.7609 |
+| FC-NN, 2 hidden layers, drop-out | 0.7777 | 1.7609 |
+| FC-NN, 3 hidden layers, drop-out, batch-norm | 0.7425 | 1.7609 |
+| LSTM | 0.7642 | 1.7609 |
 
 Over all, maximal accuracy achieved is around 77%.
 
@@ -85,16 +84,14 @@ as could be expected. Deep learning algorithms are in that sense
 
 
 5. The channel-noise is probably not a significant audio property for the classification process.
-If it was, accuracy rates in confusion matrix 2 (between noise and BMR pulses) would probably be lower. 
+If it was, accuracy rates in confusion matrix 3 (between noise and BMR pulses) would probably be lower. 
    
 ## Appendix: confusion matrices
 
 The matrices below relate to the FC-NN with 3 hidden layers.
 
-Confusion matrix 1: between the 6 classes (5 BMR and 1 noise).
+<img src="cmat2.png" alt="Plot Example" width="1000" height="600">
 
-<img src="confusion mat 2 percentage.png" alt="Plot Example" width="1000" height="600">
+<img src="cmat4.png" alt="Plot Example" width="1000" height="600">
 
-Confusion matrix 2: between noise and BMR pulses.
-
-<img src="confusion mat 6 noise or BMR percentage.png" alt="Plot Example" width="1000" height="600">
+<img src="cmat6.png" alt="Plot Example" width="1000" height="600">

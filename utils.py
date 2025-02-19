@@ -154,7 +154,7 @@ def load_lstm_weights(model, file_path):
     print(f"LSTM model weights loaded from {file_path}")
 
 
-def plot_confusion_matrix(preds: torch.Tensor, labels: torch.Tensor, class_names=None):
+def plot_confusion_matrix(preds: torch.Tensor, labels: torch.Tensor, class_names=None, title="Confusion Matrix", file_name=None):
     """
     Plots a confusion matrix given prediction and label tensors.
 
@@ -174,11 +174,13 @@ def plot_confusion_matrix(preds: torch.Tensor, labels: torch.Tensor, class_names
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=class_names, yticklabels=class_names)
     plt.xlabel("Predicted Label")
     plt.ylabel("True Label")
-    plt.title("Confusion Matrix")
+    plt.title(title)
+    if file_name:
+        plt.savefig(file_name, dpi=300, bbox_inches="tight")  # Saves as PNG
     plt.show()
 
 
-def plot_confusion_matrix_percentage(preds: torch.Tensor, labels: torch.Tensor, class_names=None):
+def plot_confusion_matrix_percentage(preds: torch.Tensor, labels: torch.Tensor, class_names=None, title="Confusion Matrix (%)", file_name=None):
     """
     Plots a confusion matrix given prediction and label tensors with percentages.
 
@@ -200,8 +202,11 @@ def plot_confusion_matrix_percentage(preds: torch.Tensor, labels: torch.Tensor, 
     sns.heatmap(cm_percentage, annot=True, fmt='.2f', cmap='Blues', xticklabels=class_names, yticklabels=class_names)
     plt.xlabel("Predicted Label")
     plt.ylabel("True Label")
-    plt.title("Confusion Matrix (%)")
+    plt.title(title)
+    if file_name:
+        plt.savefig(file_name, dpi=300, bbox_inches="tight")  # Saves as PNG
     plt.show()
+
 
 # Convert PrettyTable to Markdown
 def prettytable_to_markdown(table):

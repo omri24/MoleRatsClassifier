@@ -95,7 +95,7 @@ run_knn = True
 run_svm = True
 
 show_svm_report = False
-show_confusion_mat = False
+show_confusion_mat = True
 
 run_MLP = True
 run_dropout_MLP = True
@@ -755,8 +755,8 @@ print(markdown_table)
 if use_cross_entropy and show_confusion_mat and (run_MLP or run_dropout_MLP or run_batch_norm_MLP or run_MoleRatsLSTM):
   if label_alias_to_use == 1:
     class_names = ["Noise", "Abe", "Phoenix", "Bubba", "Tulsi", "Little"]
-    plot_confusion_matrix(predicted, y_test, class_names)
-    plot_confusion_matrix_percentage(predicted, y_test, class_names)
+    plot_confusion_matrix(predicted, y_test, class_names, "Confusion matrix - all classes", "cmat1.png")
+    plot_confusion_matrix_percentage(predicted, y_test, class_names, "Confusion matrix - all classes (%)", "cmat2.png")
 
     m_f_label_alias = {0:0, 1:1, 2:2, 3:1, 4:2, 5:2}
     predicted_m_f = [m_f_label_alias[i] for i in predicted.tolist()]
@@ -765,15 +765,15 @@ if use_cross_entropy and show_confusion_mat and (run_MLP or run_dropout_MLP or r
     test_labels_m_f = torch.tensor(test_labels_m_f)
     class_names_m_f = ["Noise", "Male", "Female"]
 
-    plot_confusion_matrix(predicted_m_f, test_labels_m_f, class_names_m_f)
-    plot_confusion_matrix_percentage(predicted_m_f, test_labels_m_f, class_names_m_f)
+    plot_confusion_matrix(predicted_m_f, test_labels_m_f, class_names_m_f, "Confusion matrix - male/female", "cmat3.png")
+    plot_confusion_matrix_percentage(predicted_m_f, test_labels_m_f, class_names_m_f, "Confusion matrix - male/female (%)", "cmat4.png")
 
     is_noise_label_alias = {0:0, 1:1, 2:1, 3:1, 4:1, 5:1}
     predicted_is_noise = [is_noise_label_alias[i] for i in predicted.tolist()]
     test_labels_is_noise = [is_noise_label_alias[i] for i in y_test.tolist()]
     predicted_is_noise = torch.tensor(predicted_is_noise)
     test_labels_is_noise = torch.tensor(test_labels_is_noise)
-    class_names_is_noise = ["Noise", "Mole-rat (any)"]
+    class_names_is_noise = ["Noise", "BMR (any)"]
 
-    plot_confusion_matrix(predicted_is_noise, test_labels_is_noise, class_names_is_noise)
-    plot_confusion_matrix_percentage(predicted_is_noise, test_labels_is_noise, class_names_is_noise)
+    plot_confusion_matrix(predicted_is_noise, test_labels_is_noise, class_names_is_noise, "Confusion matrix - BMR/noise", "cmat5.png")
+    plot_confusion_matrix_percentage(predicted_is_noise, test_labels_is_noise, class_names_is_noise, "Confusion matrix - BMR/noise (%)", "cmat6.png")
