@@ -137,6 +137,23 @@ def evaluate_LSTM(model, test_loader, criterion, device):
     accuracy = accuracy_score(all_labels, all_preds)
     return total_loss / len(test_loader), accuracy
 
+def save_mlp_weights(model, file_path):
+    torch.save(model.state_dict(), file_path)
+    print(f"Model weights saved to {file_path}")
+
+def load_mlp_weights(model, file_path):
+    model.load_state_dict(torch.load(file_path, weights_only=True))
+    print(f"Model weights loaded from {file_path}")
+
+def save_lstm_weights(model, file_path):
+    torch.save(model.state_dict(), file_path)
+    print(f"LSTM model weights saved to {file_path}")
+
+def load_lstm_weights(model, file_path):
+    model.load_state_dict(torch.load(file_path, weights_only=True))
+    print(f"LSTM model weights loaded from {file_path}")
+
+
 def plot_confusion_matrix(preds: torch.Tensor, labels: torch.Tensor, class_names=None):
     """
     Plots a confusion matrix given prediction and label tensors.

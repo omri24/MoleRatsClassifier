@@ -16,6 +16,7 @@ from sklearn.metrics import accuracy_score, classification_report
 
 from utils import KNNClassifier, FullyConnectedNN, plot_confusion_matrix, plot_confusion_matrix_percentage, prettytable_to_markdown
 from utils import DropoutMLP, BatchNormMLP, MoleRatsLSTM, train_LSTM, evaluate_LSTM
+from utils import save_mlp_weights, load_mlp_weights, save_lstm_weights, load_lstm_weights
 
 from prettytable import PrettyTable
 import time
@@ -92,15 +93,18 @@ n_labels = label_alias["n_labels"]
 run_kmeams = True
 run_knn = True
 run_svm = True
+
 show_svm_report = False
-show_confusion_mat = True
-train_MLP = True
-train_dropout_MLP = True
-train_batch_norm_MLP = True
-train_MoleRatsLSTM =True
+show_confusion_mat = False
+
+run_MLP = True
+run_dropout_MLP = True
+run_batch_norm_MLP = True
+run_MoleRatsLSTM =True
+
+from_pretrained = True
 
 # Create table
-
 cpu_or_gpu = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 if cpu_or_gpu != "cpu":
     hw_type = torch.cuda.get_device_name(0)
@@ -108,374 +112,647 @@ else:
     hw_type = "CPU"
 results_table = PrettyTable(["Classification method", "Accuracy, range: [0-1]", f"Training time, HW: {hw_type} [sec]"])
 
-# Kmeans
-if run_kmeams:
-    timer_start = time.time()
-    n_clusters = n_labels
-    kmeans = KMeans(n_clusters=n_clusters, random_state=42)
-    kmeans.fit(embeddings_arr)
-    labels_estimation = kmeans.labels_
+if not from_pretrained:
+    # Kmeans
+    if run_kmeams:
+        timer_start = time.time()
+        n_clusters = n_labels
+        kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+        kmeans.fit(embeddings_arr)
+        labels_estimation = kmeans.labels_
 
-    count_correct = 0
-    for i in range(len(labels)):
-      if labels[i] == labels_estimation[i]:
-        count_correct += 1
+        count_correct = 0
+        for i in range(len(labels)):
+          if labels[i] == labels_estimation[i]:
+            count_correct += 1
 
-    accuracy = round(count_correct / len(labels), 4)
-    print(f"\nAccuracy of WavML with KMeans: {accuracy}")
-    timer_stop = time.time()
-    calc_time = round(timer_stop - timer_start, 4)
-    results_table.add_row(["K-means", accuracy, calc_time])
+        accuracy = round(count_correct / len(labels), 4)
+        print(f"\nAccuracy of WavML with KMeans: {accuracy}")
+        timer_stop = time.time()
+        calc_time = round(timer_stop - timer_start, 4)
+        results_table.add_row(["K-means", accuracy, calc_time])
 
-# KNN
-if run_knn:
-    timer_start = time.time()
+    # KNN
+    if run_knn:
+        timer_start = time.time()
 
-    X_train = embeddings_train.copy()
-    y_train = deepcopy(train_labels)
-    X_test = embeddings_test.copy()
-    y_test = deepcopy(test_labels)
-    k = 3
+        X_train = embeddings_train.copy()
+        y_train = deepcopy(train_labels)
+        X_test = embeddings_test.copy()
+        y_test = deepcopy(test_labels)
+        k = 3
 
-    knn = KNNClassifier(k=3)
-    knn.fit(X_train, y_train)
-    predictions = knn.predict(X_test)
-    accuracy = round(knn.score(X_test, y_test), 4)
+        knn = KNNClassifier(k=3)
+        knn.fit(X_train, y_train)
+        predictions = knn.predict(X_test)
+        accuracy = round(knn.score(X_test, y_test), 4)
 
-    print(f"Accuracy of WavLM with KNN (k = {k}): {accuracy}")
-    timer_stop = time.time()
-    calc_time = round(timer_stop - timer_start, 4)
-    results_table.add_row([f"KNN, k={k}, cosine distance", accuracy, calc_time])
+        print(f"Accuracy of WavLM with KNN (k = {k}): {accuracy}")
+        timer_stop = time.time()
+        calc_time = round(timer_stop - timer_start, 4)
+        results_table.add_row([f"KNN, k={k}, cosine distance", accuracy, calc_time])
 
-# SVM
-if run_svm:
-    timer_start = time.time()
+    # SVM
+    if run_svm:
+        timer_start = time.time()
 
-    train_samples = embeddings_train.copy()
-    test_samples = embeddings_test.copy()
-    kernel = 'rbf'
+        train_samples = embeddings_train.copy()
+        test_samples = embeddings_test.copy()
+        kernel = 'rbf'
 
-    svm_model = SVC(kernel=kernel, C=1.0, gamma='scale')
-    svm_model.fit(train_samples, train_labels)
-    test_predictions = svm_model.predict(test_samples)
+        svm_model = SVC(kernel=kernel, C=1.0, gamma='scale')
+        svm_model.fit(train_samples, train_labels)
+        test_predictions = svm_model.predict(test_samples)
 
-    accuracy = accuracy_score(test_labels, test_predictions)
-    accuracy = round(accuracy, 4)
-    print(f"Accuracy of SVM with {kernel} kernel: {accuracy}")
-    timer_stop = time.time()
-    calc_time = round(timer_stop - timer_start, 4)
+        accuracy = accuracy_score(test_labels, test_predictions)
+        accuracy = round(accuracy, 4)
+        print(f"Accuracy of SVM with {kernel} kernel: {accuracy}")
+        timer_stop = time.time()
+        calc_time = round(timer_stop - timer_start, 4)
 
-    results_table.add_row([f"SVM, {kernel} kernel", accuracy, calc_time])
+        results_table.add_row([f"SVM, {kernel} kernel", accuracy, calc_time])
 
-    if show_svm_report:
-        print("\nClassification Report:")
-        print(classification_report(test_labels, test_predictions, zero_division=0))
+        if show_svm_report:
+            print("\nClassification Report:")
+            print(classification_report(test_labels, test_predictions, zero_division=0))
 
-# FC-NN (1 hidden layer)
-if train_MLP:
+    # FC-NN (1 hidden layer)
+    if run_MLP:
 
-    input_size = 512
-    hidden_size = 256
-    output_size = n_labels
-    learning_rate = 0.001
-    num_epochs = 1500
+        input_size = 512
+        hidden_size = 256
+        output_size = n_labels
+        learning_rate = 0.001
+        num_epochs = 1500
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # Dataset
-    X_train = train_set.clone().to(device)
-    y_train = torch.tensor(train_labels).to(device)
-    X_test = test_set.clone().to(device)
-    y_test = torch.tensor(test_labels).to(device)
+        # Dataset
+        X_train = train_set.clone().to(device)
+        y_train = torch.tensor(train_labels).to(device)
+        X_test = test_set.clone().to(device)
+        y_test = torch.tensor(test_labels).to(device)
 
-    # Define the model, the optimizer, and the loss
-    model = FullyConnectedNN(input_size, hidden_size, output_size).to(device)
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+        # Define the model, the optimizer, and the loss
+        model = FullyConnectedNN(input_size, hidden_size, output_size).to(device)
+        optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-    # Select loss function
-    use_cross_entropy = True    # Change this to False to use L2 loss
-
-    if use_cross_entropy:
-        criterion = nn.CrossEntropyLoss()
-    else:
-        criterion = nn.MSELoss()
-        y_train = F.one_hot(y_train, num_classes=output_size).float()
-
-    # Training loop
-    timer_start = time.time()
-    print("FC-NN training started")
-
-    for epoch in range(num_epochs):
-        # Forward pass
-        outputs = model(X_train)
-        if not use_cross_entropy:
-            outputs = F.softmax(outputs, dim=1)
-
-        loss = criterion(outputs, y_train)
-
-        # Backward pass and optimization
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-        if (epoch + 1) % 100 == 0:
-          print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}")
-
-    print("Training complete")
-    timer_stop = time.time()
-    calc_time = round(timer_stop - timer_start, 4)
-
-
-
-    # Test
-    model.eval()  # Set the model to evaluation mode
-    with torch.no_grad():
-        test_outputs = model(X_test)
-        if not use_cross_entropy:
-            test_outputs = F.softmax(test_outputs, dim=1)  # Apply softmax for L2 loss
+        # Select loss function
+        use_cross_entropy = True    # Change this to False to use L2 loss
 
         if use_cross_entropy:
-            predicted = torch.argmax(test_outputs, dim=1)
-            accuracy = (predicted == y_test).float().mean()
-            print(f"Test Accuracy (cross entropy loss and 1 hidden layer): {round(accuracy.item(), 4)}")
+            criterion = nn.CrossEntropyLoss()
         else:
-            mse = criterion(test_outputs, y_test)
-            print(f"Test Mean Squared Error: {mse.item():.4f}")
+            criterion = nn.MSELoss()
+            y_train = F.one_hot(y_train, num_classes=output_size).float()
 
-    if use_cross_entropy:
-        accuracy = round(accuracy.item(), 4)
-        results_table.add_row([f"FC-NN, 1 hidden layer", accuracy, calc_time])
+        # Training loop
+        timer_start = time.time()
+        print("FC-NN training started")
 
-    print(f"\nThe data was classified {n_labels} classes.")
-    labels_count = {}
-    for item in train_labels:
-      if item not in labels_count.keys():
-        labels_count[item] = 0
-      labels_count[item] += 1
-    print(f"The algorithm was trained on a dataset in size: {len(train_labels)}.")
-    print(f"The labels distribution: {labels_count}.")
+        for epoch in range(num_epochs):
+            # Forward pass
+            outputs = model(X_train)
+            if not use_cross_entropy:
+                outputs = F.softmax(outputs, dim=1)
 
-# FC-NN with drop-out (2 hidden layers)
-if train_dropout_MLP:
+            loss = criterion(outputs, y_train)
 
-    # MLP with drop-out
-    input_size = 512
-    hidden_size1 = 512
-    hidden_size2 = 256
-    output_size = n_labels
-    drop_out_param = 0.3
-    learning_rate = 0.001
-    num_epochs = 1500
+            # Backward pass and optimization
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            if (epoch + 1) % 100 == 0:
+              print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}")
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        print("Training complete")
+        timer_stop = time.time()
+        calc_time = round(timer_stop - timer_start, 4)
 
-    # Dataset
-    X_train = train_set.clone().to(device)
-    y_train = torch.tensor(train_labels).to(device)
-    X_test = test_set.clone().to(device)
-    y_test = torch.tensor(test_labels).to(device)
+        save_mlp_weights(model, "Weights_MLP_1_hidden_layer.pth")
 
-    # Define the model, the optimizer, and the loss
-    model = DropoutMLP(input_size, hidden_size1, hidden_size2, output_size, drop_out_param).to(device)
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+        # Test
+        model.eval()  # Set the model to evaluation mode
+        with torch.no_grad():
+            test_outputs = model(X_test)
+            if not use_cross_entropy:
+                test_outputs = F.softmax(test_outputs, dim=1)  # Apply softmax for L2 loss
 
-    # Select loss function
-    use_cross_entropy = True  # Change this to False to use L2 loss
-
-    if use_cross_entropy:
-        criterion = nn.CrossEntropyLoss()
-    else:
-        criterion = nn.MSELoss()
-        y_train = F.one_hot(y_train, num_classes=output_size).float()
-
-    # Training loop
-    timer_start = time.time()
-    print("FC-NN training started")
-    for epoch in range(num_epochs):
-        # Forward pass
-        outputs = model(X_train)
-        if not use_cross_entropy:
-            outputs = F.softmax(outputs, dim=1)
-
-        loss = criterion(outputs, y_train)
-
-        # Backward pass and optimization
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-        if (epoch + 1) % 100 == 0:
-            print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item():.4f}")
-
-    print("Training complete")
-    timer_stop = time.time()
-    calc_time = round(timer_stop - timer_start, 4)
-
-    # Test
-    model.eval()  # Set the model to evaluation mode
-    with torch.no_grad():
-        test_outputs = model(X_test)
-        if not use_cross_entropy:
-            test_outputs = F.softmax(test_outputs, dim=1)  # Apply softmax for L2 loss
+            if use_cross_entropy:
+                predicted = torch.argmax(test_outputs, dim=1)
+                accuracy = (predicted == y_test).float().mean()
+                print(f"Test Accuracy (cross entropy loss and 1 hidden layer): {round(accuracy.item(), 4)}")
+            else:
+                mse = criterion(test_outputs, y_test)
+                print(f"Test Mean Squared Error: {mse.item():.4f}")
 
         if use_cross_entropy:
-            predicted = torch.argmax(test_outputs, dim=1)
-            accuracy = (predicted == y_test).float().mean()
-            print(f"Test Accuracy (cross entropy loss and 2 hidden layers): {round(accuracy.item(), 4)}")
-        else:
-            mse = criterion(test_outputs, y_test)
-            print(f"Test Mean Squared Error: {mse.item():.4f}")
+            accuracy = round(accuracy.item(), 4)
+            results_table.add_row([f"FC-NN, 1 hidden layer", accuracy, calc_time])
 
-    if use_cross_entropy:
-        accuracy = round(accuracy.item(), 4)
-        results_table.add_row([f"FC-NN, 2 hidden layers, drop-out", accuracy, calc_time])
-
-    print(f"\nThe data was classified {n_labels} classes.")
-    labels_count = {}
-    for item in train_labels:
-        if item not in labels_count.keys():
+        print(f"\nThe data was classified {n_labels} classes.")
+        labels_count = {}
+        for item in train_labels:
+          if item not in labels_count.keys():
             labels_count[item] = 0
-        labels_count[item] += 1
-    print(f"The algorithm was trained on a dataset in size: {len(train_labels)}.")
-    print(f"The labels distribution: {labels_count}.")
+          labels_count[item] += 1
+        print(f"The algorithm was trained on a dataset in size: {len(train_labels)}.")
+        print(f"The labels distribution: {labels_count}.")
 
-# FC-NN with drop-out and batch-norm (3 hidden layers)
-if train_batch_norm_MLP:
+    # FC-NN with drop-out (2 hidden layers)
+    if run_dropout_MLP:
 
-    input_size = 512
-    hidden_size1 = 1024
-    hidden_size2 = 512
-    hidden_size3 = 256
-    output_size = n_labels
-    drop_out_param = 0.3
-    learning_rate = 0.001
-    num_epochs = 500
+        # MLP with drop-out
+        input_size = 512
+        hidden_size1 = 512
+        hidden_size2 = 256
+        output_size = n_labels
+        drop_out_param = 0.3
+        learning_rate = 0.001
+        num_epochs = 1500
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # Dataset
-    X_train = train_set.clone().to(device)
-    y_train = torch.tensor(train_labels).to(device)
-    X_test = test_set.clone().to(device)
-    y_test = torch.tensor(test_labels).to(device)
+        # Dataset
+        X_train = train_set.clone().to(device)
+        y_train = torch.tensor(train_labels).to(device)
+        X_test = test_set.clone().to(device)
+        y_test = torch.tensor(test_labels).to(device)
 
-    # Define the model, the optimizer, and the loss
-    model = BatchNormMLP(input_size, hidden_size1, hidden_size2, hidden_size3 ,output_size, drop_out_param).to(device)
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+        # Define the model, the optimizer, and the loss
+        model = DropoutMLP(input_size, hidden_size1, hidden_size2, output_size, drop_out_param).to(device)
+        optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-    # Select loss function
-    use_cross_entropy = True  # Change this to False to use L2 loss
-
-    if use_cross_entropy:
-        criterion = nn.CrossEntropyLoss()
-    else:
-        criterion = nn.MSELoss()
-        y_train = F.one_hot(y_train, num_classes=output_size).float()
-
-    # Training loop
-    timer_start = time.time()
-    print("FC-NN training started")
-    for epoch in range(num_epochs):
-        # Forward pass
-        outputs = model(X_train)
-        if not use_cross_entropy:
-            outputs = F.softmax(outputs, dim=1)
-
-        loss = criterion(outputs, y_train)
-
-        # Backward pass and optimization
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-        if (epoch + 1) % 100 == 0:
-            print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item():.4f}")
-
-    print("Training complete")
-    timer_stop = time.time()
-    calc_time = round(timer_stop - timer_start, 4)
-
-    # Test
-    model.eval()  # Set the model to evaluation mode
-    with torch.no_grad():
-        test_outputs = model(X_test)
-        if not use_cross_entropy:
-            test_outputs = F.softmax(test_outputs, dim=1)  # Apply softmax for L2 loss
+        # Select loss function
+        use_cross_entropy = True  # Change this to False to use L2 loss
 
         if use_cross_entropy:
-            predicted = torch.argmax(test_outputs, dim=1)
-            accuracy = (predicted == y_test).float().mean()
-            print(f"Test Accuracy (cross entropy loss and 3 hidden layers): {round(accuracy.item(), 4)}")
+            criterion = nn.CrossEntropyLoss()
         else:
-            mse = criterion(test_outputs, y_test)
-            print(f"Test Mean Squared Error: {mse.item():.4f}")
+            criterion = nn.MSELoss()
+            y_train = F.one_hot(y_train, num_classes=output_size).float()
 
-    if use_cross_entropy:
-        accuracy = round(accuracy.item(), 4)
-        results_table.add_row([f"FC-NN, 3 hidden layers, drop-out, batch-norm", accuracy, calc_time])
+        # Training loop
+        timer_start = time.time()
+        print("FC-NN training started")
+        for epoch in range(num_epochs):
+            # Forward pass
+            outputs = model(X_train)
+            if not use_cross_entropy:
+                outputs = F.softmax(outputs, dim=1)
 
-    print(f"\nThe data was classified {n_labels} classes.")
-    labels_count = {}
-    for item in train_labels:
-        if item not in labels_count.keys():
-            labels_count[item] = 0
-        labels_count[item] += 1
-    print(f"The algorithm was trained on a dataset in size: {len(train_labels)}.")
-    print(f"The labels distribution: {labels_count}.")
+            loss = criterion(outputs, y_train)
 
-# LSTM
-if train_MoleRatsLSTM:
+            # Backward pass and optimization
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            if (epoch + 1) % 100 == 0:
+                print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item():.4f}")
 
-    # Hyperparameters
-    use_cross_entropy = True
-    input_dim = 512
-    hidden_dim = 256
-    num_layers = 3
-    num_classes = n_labels
-    batch_size = 32
-    num_epochs = 30
-    learning_rate = 0.001
+        print("Training complete")
+        timer_stop = time.time()
+        calc_time = round(timer_stop - timer_start, 4)
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        save_mlp_weights(model, "Weights_MLP_2_hidden_layers.pth")
 
-    # Dataset
-    X_train = train_set.clone().to(device)
-    y_train = torch.tensor(train_labels).to(device)
-    X_test = test_set.clone().to(device)
-    y_test = torch.tensor(test_labels).to(device)
+        # Test
+        model.eval()  # Set the model to evaluation mode
+        with torch.no_grad():
+            test_outputs = model(X_test)
+            if not use_cross_entropy:
+                test_outputs = F.softmax(test_outputs, dim=1)  # Apply softmax for L2 loss
 
-    # DataLoaders
-    train_dataset = TensorDataset(X_train, y_train)
-    test_dataset = TensorDataset(X_test, y_test)
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size)
+            if use_cross_entropy:
+                predicted = torch.argmax(test_outputs, dim=1)
+                accuracy = (predicted == y_test).float().mean()
+                print(f"Test Accuracy (cross entropy loss and 2 hidden layers): {round(accuracy.item(), 4)}")
+            else:
+                mse = criterion(test_outputs, y_test)
+                print(f"Test Mean Squared Error: {mse.item():.4f}")
 
-    # Initialize model
-    model = MoleRatsLSTM(input_dim, hidden_dim, num_layers, num_classes).to(device)
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+        if use_cross_entropy:
+            accuracy = round(accuracy.item(), 4)
+            results_table.add_row([f"FC-NN, 2 hidden layers, drop-out", accuracy, calc_time])
 
-    # Train and evaluate
-    timer_start = time.time()
+        print(f"\nThe data was classified {n_labels} classes.")
+        labels_count = {}
+        for item in train_labels:
+            if item not in labels_count.keys():
+                labels_count[item] = 0
+            labels_count[item] += 1
+        print(f"The algorithm was trained on a dataset in size: {len(train_labels)}.")
+        print(f"The labels distribution: {labels_count}.")
 
-    for epoch in range(num_epochs):
-        train_loss = train_LSTM(model, train_loader, criterion, optimizer, device)
+    # FC-NN with drop-out and batch-norm (3 hidden layers)
+    if run_batch_norm_MLP:
+
+        input_size = 512
+        hidden_size1 = 1024
+        hidden_size2 = 512
+        hidden_size3 = 256
+        output_size = n_labels
+        drop_out_param = 0.3
+        learning_rate = 0.001
+        num_epochs = 500
+
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+        # Dataset
+        X_train = train_set.clone().to(device)
+        y_train = torch.tensor(train_labels).to(device)
+        X_test = test_set.clone().to(device)
+        y_test = torch.tensor(test_labels).to(device)
+
+        # Define the model, the optimizer, and the loss
+        model = BatchNormMLP(input_size, hidden_size1, hidden_size2, hidden_size3 ,output_size, drop_out_param).to(device)
+        optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+
+        # Select loss function
+        use_cross_entropy = True  # Change this to False to use L2 loss
+
+        if use_cross_entropy:
+            criterion = nn.CrossEntropyLoss()
+        else:
+            criterion = nn.MSELoss()
+            y_train = F.one_hot(y_train, num_classes=output_size).float()
+
+        # Training loop
+        timer_start = time.time()
+        print("FC-NN training started")
+        for epoch in range(num_epochs):
+            # Forward pass
+            outputs = model(X_train)
+            if not use_cross_entropy:
+                outputs = F.softmax(outputs, dim=1)
+
+            loss = criterion(outputs, y_train)
+
+            # Backward pass and optimization
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            if (epoch + 1) % 100 == 0:
+                print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item():.4f}")
+
+        print("Training complete")
+        timer_stop = time.time()
+        calc_time = round(timer_stop - timer_start, 4)
+
+        save_mlp_weights(model, "Weights_MLP_3_hidden_layers.pth")
+
+        # Test
+        model.eval()  # Set the model to evaluation mode
+        with torch.no_grad():
+            test_outputs = model(X_test)
+            if not use_cross_entropy:
+                test_outputs = F.softmax(test_outputs, dim=1)  # Apply softmax for L2 loss
+
+            if use_cross_entropy:
+                predicted = torch.argmax(test_outputs, dim=1)
+                accuracy = (predicted == y_test).float().mean()
+                print(f"Test Accuracy (cross entropy loss and 3 hidden layers): {round(accuracy.item(), 4)}")
+            else:
+                mse = criterion(test_outputs, y_test)
+                print(f"Test Mean Squared Error: {mse.item():.4f}")
+
+        if use_cross_entropy:
+            accuracy = round(accuracy.item(), 4)
+            results_table.add_row([f"FC-NN, 3 hidden layers, drop-out, batch-norm", accuracy, calc_time])
+
+        print(f"\nThe data was classified {n_labels} classes.")
+        labels_count = {}
+        for item in train_labels:
+            if item not in labels_count.keys():
+                labels_count[item] = 0
+            labels_count[item] += 1
+        print(f"The algorithm was trained on a dataset in size: {len(train_labels)}.")
+        print(f"The labels distribution: {labels_count}.")
+
+    # LSTM
+    if run_MoleRatsLSTM:
+
+        # Hyperparameters
+        use_cross_entropy = True
+        input_dim = 512
+        hidden_dim = 256
+        num_layers = 3
+        num_classes = n_labels
+        batch_size = 32
+        num_epochs = 30
+        learning_rate = 0.001
+
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+        # Dataset
+        X_train = train_set.clone().to(device)
+        y_train = torch.tensor(train_labels).to(device)
+        X_test = test_set.clone().to(device)
+        y_test = torch.tensor(test_labels).to(device)
+
+        # DataLoaders
+        train_dataset = TensorDataset(X_train, y_train)
+        test_dataset = TensorDataset(X_test, y_test)
+        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+        test_loader = DataLoader(test_dataset, batch_size=batch_size)
+
+        # Initialize model
+        model = MoleRatsLSTM(input_dim, hidden_dim, num_layers, num_classes).to(device)
+        criterion = nn.CrossEntropyLoss()
+        optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+
+        # Train and evaluate
+        timer_start = time.time()
+
+        for epoch in range(num_epochs):
+            train_loss = train_LSTM(model, train_loader, criterion, optimizer, device)
+            test_loss, accuracy = evaluate_LSTM(model, test_loader, criterion, device)
+
+            print(f"Epoch {epoch + 1}/{num_epochs}: "
+                  f"Train Loss: {train_loss:.4f} | "
+                  f"Test Loss: {test_loss:.4f} | "
+                  f"Accuracy: {accuracy:.4f}")
+
+        timer_stop = time.time()
+        calc_time = round(timer_stop - timer_start, 4)
+
+        save_lstm_weights(model, "Weights_LSTM.pth")
+
+        accuracy = round(accuracy, 4)
+        results_table.add_row([f"LSTM", accuracy, calc_time])
+
+else:
+
+    # Kmeans
+    if run_kmeams:
+        timer_start = time.time()
+        n_clusters = n_labels
+        kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+        kmeans.fit(embeddings_arr)
+        labels_estimation = kmeans.labels_
+
+        count_correct = 0
+        for i in range(len(labels)):
+            if labels[i] == labels_estimation[i]:
+                count_correct += 1
+
+        accuracy = round(count_correct / len(labels), 4)
+        print(f"\nAccuracy of WavML with KMeans: {accuracy}")
+        timer_stop = time.time()
+        calc_time = round(timer_stop - timer_start, 4)
+        results_table.add_row(["K-means", accuracy, calc_time])
+
+    # KNN
+    if run_knn:
+        timer_start = time.time()
+
+        X_train = embeddings_train.copy()
+        y_train = deepcopy(train_labels)
+        X_test = embeddings_test.copy()
+        y_test = deepcopy(test_labels)
+        k = 3
+
+        knn = KNNClassifier(k=3)
+        knn.fit(X_train, y_train)
+        predictions = knn.predict(X_test)
+        accuracy = round(knn.score(X_test, y_test), 4)
+
+        print(f"Accuracy of WavLM with KNN (k = {k}): {accuracy}")
+        timer_stop = time.time()
+        calc_time = round(timer_stop - timer_start, 4)
+        results_table.add_row([f"KNN, k={k}, cosine distance", accuracy, calc_time])
+
+    # SVM
+    if run_svm:
+        timer_start = time.time()
+
+        train_samples = embeddings_train.copy()
+        test_samples = embeddings_test.copy()
+        kernel = 'rbf'
+
+        svm_model = SVC(kernel=kernel, C=1.0, gamma='scale')
+        svm_model.fit(train_samples, train_labels)
+        test_predictions = svm_model.predict(test_samples)
+
+        accuracy = accuracy_score(test_labels, test_predictions)
+        accuracy = round(accuracy, 4)
+        print(f"Accuracy of SVM with {kernel} kernel: {accuracy}")
+        timer_stop = time.time()
+        calc_time = round(timer_stop - timer_start, 4)
+
+        results_table.add_row([f"SVM, {kernel} kernel", accuracy, calc_time])
+
+        if show_svm_report:
+            print("\nClassification Report:")
+            print(classification_report(test_labels, test_predictions, zero_division=0))
+
+    # FC-NN (1 hidden layer)
+    if run_MLP:
+
+        input_size = 512
+        hidden_size = 256
+        output_size = n_labels
+
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+        # Dataset
+        X_test = test_set.clone().to(device)
+        y_test = torch.tensor(test_labels).to(device)
+
+        # Define the model, the optimizer, and the loss
+        model = FullyConnectedNN(input_size, hidden_size, output_size).to(device)
+
+        # Select loss function
+        use_cross_entropy = True  # Change this to False to use L2 loss
+
+        if use_cross_entropy:
+            criterion = nn.CrossEntropyLoss()
+        else:
+            criterion = nn.MSELoss()
+
+        load_mlp_weights(model, "Weights_MLP_1_hidden_layer_to_use.pth")
+
+        # Test
+        model.eval()  # Set the model to evaluation mode
+        with torch.no_grad():
+            test_outputs = model(X_test)
+            if not use_cross_entropy:
+                test_outputs = F.softmax(test_outputs, dim=1)  # Apply softmax for L2 loss
+
+            if use_cross_entropy:
+                predicted = torch.argmax(test_outputs, dim=1)
+                accuracy = (predicted == y_test).float().mean()
+                print(f"Test Accuracy (cross entropy loss and 1 hidden layer): {round(accuracy.item(), 4)}")
+            else:
+                mse = criterion(test_outputs, y_test)
+                print(f"Test Mean Squared Error: {mse.item():.4f}")
+
+        if use_cross_entropy:
+            accuracy = round(accuracy.item(), 4)
+            results_table.add_row([f"FC-NN, 1 hidden layer", accuracy, calc_time])
+
+        print(f"\nThe data was classified {n_labels} classes.")
+        labels_count = {}
+        for item in train_labels:
+            if item not in labels_count.keys():
+                labels_count[item] = 0
+            labels_count[item] += 1
+        print(f"The algorithm was trained on a dataset in size: {len(train_labels)}.")
+        print(f"The labels distribution: {labels_count}.")
+
+    # FC-NN with drop-out (2 hidden layers)
+    if run_dropout_MLP:
+
+        # MLP with drop-out
+        input_size = 512
+        hidden_size1 = 512
+        hidden_size2 = 256
+        output_size = n_labels
+        drop_out_param = 0.3
+
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+        # Dataset
+        X_test = test_set.clone().to(device)
+        y_test = torch.tensor(test_labels).to(device)
+
+        # Define the model, the optimizer, and the loss
+        model = DropoutMLP(input_size, hidden_size1, hidden_size2, output_size, drop_out_param).to(device)
+
+        # Select loss function
+        use_cross_entropy = True  # Change this to False to use L2 loss
+
+        if use_cross_entropy:
+            criterion = nn.CrossEntropyLoss()
+        else:
+            criterion = nn.MSELoss()
+
+        load_mlp_weights(model, "Weights_MLP_2_hidden_layers_to_use.pth")
+
+        # Test
+        model.eval()  # Set the model to evaluation mode
+        with torch.no_grad():
+            test_outputs = model(X_test)
+            if not use_cross_entropy:
+                test_outputs = F.softmax(test_outputs, dim=1)  # Apply softmax for L2 loss
+
+            if use_cross_entropy:
+                predicted = torch.argmax(test_outputs, dim=1)
+                accuracy = (predicted == y_test).float().mean()
+                print(f"Test Accuracy (cross entropy loss and 2 hidden layers): {round(accuracy.item(), 4)}")
+            else:
+                mse = criterion(test_outputs, y_test)
+                print(f"Test Mean Squared Error: {mse.item():.4f}")
+
+        if use_cross_entropy:
+            accuracy = round(accuracy.item(), 4)
+            results_table.add_row([f"FC-NN, 2 hidden layers, drop-out", accuracy, calc_time])
+
+        print(f"\nThe data was classified {n_labels} classes.")
+        labels_count = {}
+        for item in train_labels:
+            if item not in labels_count.keys():
+                labels_count[item] = 0
+            labels_count[item] += 1
+        print(f"The algorithm was trained on a dataset in size: {len(train_labels)}.")
+        print(f"The labels distribution: {labels_count}.")
+
+    # FC-NN with drop-out and batch-norm (3 hidden layers)
+    if run_batch_norm_MLP:
+
+        input_size = 512
+        hidden_size1 = 1024
+        hidden_size2 = 512
+        hidden_size3 = 256
+        output_size = n_labels
+        drop_out_param = 0.3
+
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+        # Dataset
+        X_test = test_set.clone().to(device)
+        y_test = torch.tensor(test_labels).to(device)
+
+        # Define the model, the optimizer, and the loss
+        model = BatchNormMLP(input_size, hidden_size1, hidden_size2, hidden_size3 ,output_size, drop_out_param).to(device)
+
+        # Select loss function
+        use_cross_entropy = True  # Change this to False to use L2 loss
+
+        if use_cross_entropy:
+            criterion = nn.CrossEntropyLoss()
+        else:
+            criterion = nn.MSELoss()
+
+        load_mlp_weights(model, "Weights_MLP_3_hidden_layers_to_use.pth")
+
+        # Test
+        model.eval()  # Set the model to evaluation mode
+        with torch.no_grad():
+            test_outputs = model(X_test)
+            if not use_cross_entropy:
+                test_outputs = F.softmax(test_outputs, dim=1)  # Apply softmax for L2 loss
+
+            if use_cross_entropy:
+                predicted = torch.argmax(test_outputs, dim=1)
+                accuracy = (predicted == y_test).float().mean()
+                print(f"Test Accuracy (cross entropy loss and 3 hidden layers): {round(accuracy.item(), 4)}")
+            else:
+                mse = criterion(test_outputs, y_test)
+                print(f"Test Mean Squared Error: {mse.item():.4f}")
+
+        if use_cross_entropy:
+            accuracy = round(accuracy.item(), 4)
+            results_table.add_row([f"FC-NN, 3 hidden layers, drop-out, batch-norm", accuracy, calc_time])
+
+        print(f"\nThe data was classified {n_labels} classes.")
+        labels_count = {}
+        for item in train_labels:
+            if item not in labels_count.keys():
+                labels_count[item] = 0
+            labels_count[item] += 1
+        print(f"The algorithm was trained on a dataset in size: {len(train_labels)}.")
+        print(f"The labels distribution: {labels_count}.")
+
+    # LSTM
+    if run_MoleRatsLSTM:
+
+        # Hyperparameters
+        use_cross_entropy = True
+        input_dim = 512
+        hidden_dim = 256
+        num_layers = 3
+        num_classes = n_labels
+        batch_size = 32
+
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+        # Dataset
+        X_test = test_set.clone().to(device)
+        y_test = torch.tensor(test_labels).to(device)
+
+        # DataLoaders
+        test_dataset = TensorDataset(X_test, y_test)
+        test_loader = DataLoader(test_dataset, batch_size=batch_size)
+
+        # Initialize model
+        model = MoleRatsLSTM(input_dim, hidden_dim, num_layers, num_classes).to(device)
+        criterion = nn.CrossEntropyLoss()
+
+        load_lstm_weights(model, "Weights_LSTM_to_use.pth")
+
         test_loss, accuracy = evaluate_LSTM(model, test_loader, criterion, device)
 
-        print(f"Epoch {epoch + 1}/{num_epochs}: "
-              f"Train Loss: {train_loss:.4f} | "
-              f"Test Loss: {test_loss:.4f} | "
-              f"Accuracy: {accuracy:.4f}")
+        accuracy = round(accuracy, 4)
+        results_table.add_row([f"LSTM", accuracy, calc_time])
 
-    timer_stop = time.time()
-    calc_time = round(timer_stop - timer_start, 4)
-
-    accuracy = round(accuracy, 4)
-    results_table.add_row([f"LSTM", accuracy, calc_time])
 
 # Show results
 markdown_table = prettytable_to_markdown(results_table)
 print(markdown_table)
 
 
-if use_cross_entropy and show_confusion_mat and (train_MLP or train_dropout_MLP or train_batch_norm_MLP):
+if use_cross_entropy and show_confusion_mat and (run_MLP or run_dropout_MLP or run_batch_norm_MLP or run_MoleRatsLSTM):
   if label_alias_to_use == 1:
     class_names = ["Noise", "Abe", "Phoenix", "Bubba", "Tulsi", "Little"]
     plot_confusion_matrix(predicted, y_test, class_names)
