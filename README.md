@@ -12,10 +12,12 @@ This project has 2 goals:
 The data used in the project was provided by prof. Yossi Yovel from Tel-Aviv University. 
 
 ## The dataset
+
 The dataset contains recordings of 5 different BMR. 
 The audio is given in labeled multi-channel .WAV files.
 
 ## Analyzing the data
+
 The plots below show a pulse created by a BMR, 
 presented in time domain and in frequency domain (FFT and STFT). 
 
@@ -29,6 +31,7 @@ Out of the 3 representations of the data, the clearest representation of the pul
 Therefore, classification in time domain was chosen over classification in frequency domain.
 
 ## The classifier
+
 The classifier consists of 2 parts:
 
 1. WavLM encoder, suitable for speech recognition and for speaker verification tasks. Description in the paper: 
@@ -38,6 +41,7 @@ https://arxiv.org/abs/2110.13900 and in HuggingFace: https://huggingface.co/micr
 Over all, the classification is between 5 classes of BMR and one class of noise (6 classes in total).
 
 ## Noise handling
+
 Initially, the recordings were sampled uniformly, to get a notion for how significant is the noise. 
 Classification between samples from different recordings reached accuracy of about 80%. 
 
@@ -45,6 +49,7 @@ The conclusion is that the background noise is significant, and in order to get 
 it is necessary to distinguish also between noise and recorded BMR, not only between pulses created by different BMR.
 
 ## Results
+
 | Classification method | Accuracy, range: [0-1] | Training time, HW: NVIDIA GeForce MX450 [sec] |
 |-----------------------|------------------------|-----------------------------------------------|
 | K-means | 0.0612 | 0.2541 |
