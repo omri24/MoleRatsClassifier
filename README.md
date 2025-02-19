@@ -89,6 +89,8 @@ If it was, accuracy rates in confusion matrix 2 (between noise and BMR pulses) w
    
 ## Appendix: confusion matrices
 
+The matrices below relate to the FC-NN with 3 hidden layers.
+
 Confusion matrix 1: between the 6 classes (5 BMR and 1 noise).
 
 <img src="confusion mat 2 percentage.png" alt="Plot Example" width="1000" height="600">
