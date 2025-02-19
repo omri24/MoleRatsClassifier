@@ -50,18 +50,19 @@ it is necessary to distinguish also between noise and recorded BMR, not only bet
 
 ## Results
 
-| Classification method | Accuracy, range: [0-1] | Training time, HW: NVIDIA GeForce MX450 [sec] |
-|-----------------------|------------------------|-----------------------------------------------|
-| K-means | 0.0612 | 0.2541 |
-| KNN, k=3, cosine distance | 0.7146 | 10.189 |
-| SVM, rbf kernel | 0.7353 | 1.7609 |
-| FC-NN, 1 hidden layer | 0.7725 | 1.7609 |
-| FC-NN, 2 hidden layers, drop-out | 0.7777 | 1.7609 |
-| FC-NN, 3 hidden layers, drop-out, batch-norm | 0.7425 | 1.7609 |
-| LSTM | 0.7642 | 1.7609 |
+| Classification method | Accuracy, range: [0-1] |
+|-----------------------|------------------------|
+| K-means | 0.0612 |
+| KNN, k=3, cosine distance | 0.7146 |
+| SVM, rbf kernel | 0.7353 |
+| FC-NN, 1 hidden layer | 0.7725 |
+| FC-NN, 2 hidden layers, drop-out | 0.7777 |
+| FC-NN, 3 hidden layers, drop-out, batch-norm | 0.7425 |
+| LSTM | 0.7642 |
 
 Over all, maximal accuracy achieved is around 77%.
 
+For all embedding space classification methods, training time was less than 30 seconds on NVIDIA GeForce MX450 GPU.
 ## The embedding space
 
 The plot below shows samples containing pulses created by BMR, and samples containing only channel noise.  
