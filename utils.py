@@ -141,16 +141,16 @@ def save_mlp_weights(model, file_path):
     torch.save(model.state_dict(), file_path)
     print(f"Model weights saved to {file_path}")
 
-def load_mlp_weights(model, file_path):
-    model.load_state_dict(torch.load(file_path, weights_only=True))
+def load_mlp_weights(model, file_path, device):
+    model.load_state_dict(torch.load(file_path, weights_only=True, map_location=device))
     print(f"Model weights loaded from {file_path}")
 
 def save_lstm_weights(model, file_path):
     torch.save(model.state_dict(), file_path)
     print(f"LSTM model weights saved to {file_path}")
 
-def load_lstm_weights(model, file_path):
-    model.load_state_dict(torch.load(file_path, weights_only=True))
+def load_lstm_weights(model, file_path, device):
+    model.load_state_dict(torch.load(file_path, weights_only=True, map_location=device))
     print(f"LSTM model weights loaded from {file_path}")
 
 

@@ -23,14 +23,13 @@ import time
 
 
 
-
 # Create training and testing sets
 labels = []
 
 path_to_embeddings = "Embeddings"
 
 lst_of_embedding_paths = [os.path.join(path_to_embeddings, item) for item in os.listdir(path_to_embeddings)]
-
+lst_of_embedding_paths.sort()
 lst_of_embedding_arrys = [np.loadtxt(item, delimiter=",", dtype=np.float32) for item  in lst_of_embedding_paths]
 
 print("For general knowledge: each item in lst_of_embedding_paths must end with 'label{label_number}' (see examples) otherwise it won't work")
@@ -68,7 +67,6 @@ test_set = torch.from_numpy(embeddings_test)
 train_labels = deepcopy(lst_labels_for_train)
 test_labels = deepcopy(lst_labels_for_test)
 
-
 # Define the label alias
 """
 --- label alias explained:
@@ -95,7 +93,7 @@ run_knn = True
 run_svm = True
 
 show_svm_report = False
-show_confusion_mat = True
+show_confusion_mat = False
 
 run_MLP = True
 run_dropout_MLP = True
@@ -103,14 +101,18 @@ run_batch_norm_MLP = True
 run_MoleRatsLSTM =True
 
 from_pretrained = True
+force_cpu = False
 
-# Create table
-cpu_or_gpu = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-if cpu_or_gpu != "cpu":
+# Create table and choose device
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+if force_cpu:
+    device = torch.device("cpu")
+if device != torch.device("cpu"):
     hw_type = torch.cuda.get_device_name(0)
 else:
     hw_type = "CPU"
 results_table = PrettyTable(["Classification method", "Accuracy, range: [0-1]", f"Training time, HW: {hw_type} [sec]"])
+
 
 if not from_pretrained:
     # Kmeans
@@ -184,8 +186,6 @@ if not from_pretrained:
         output_size = n_labels
         learning_rate = 0.001
         num_epochs = 1500
-
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         # Dataset
         X_train = train_set.clone().to(device)
@@ -271,8 +271,6 @@ if not from_pretrained:
         learning_rate = 0.001
         num_epochs = 1500
 
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
         # Dataset
         X_train = train_set.clone().to(device)
         y_train = torch.tensor(train_labels).to(device)
@@ -355,8 +353,6 @@ if not from_pretrained:
         drop_out_param = 0.3
         learning_rate = 0.001
         num_epochs = 500
-
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         # Dataset
         X_train = train_set.clone().to(device)
@@ -441,8 +437,6 @@ if not from_pretrained:
         batch_size = 32
         num_epochs = 30
         learning_rate = 0.001
-
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         # Dataset
         X_train = train_set.clone().to(device)
@@ -553,8 +547,6 @@ else:
         hidden_size = 256
         output_size = n_labels
 
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
         # Dataset
         X_test = test_set.clone().to(device)
         y_test = torch.tensor(test_labels).to(device)
@@ -570,7 +562,7 @@ else:
         else:
             criterion = nn.MSELoss()
 
-        load_mlp_weights(model, "Weights_MLP_1_hidden_layer_to_use.pth")
+        load_mlp_weights(model, "Weights_MLP_1_hidden_layer_to_use.pth", device)
 
         # Test
         model.eval()  # Set the model to evaluation mode
@@ -610,8 +602,6 @@ else:
         output_size = n_labels
         drop_out_param = 0.3
 
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
         # Dataset
         X_test = test_set.clone().to(device)
         y_test = torch.tensor(test_labels).to(device)
@@ -627,7 +617,7 @@ else:
         else:
             criterion = nn.MSELoss()
 
-        load_mlp_weights(model, "Weights_MLP_2_hidden_layers_to_use.pth")
+        load_mlp_weights(model, "Weights_MLP_2_hidden_layers_to_use.pth", device)
 
         # Test
         model.eval()  # Set the model to evaluation mode
@@ -667,8 +657,6 @@ else:
         output_size = n_labels
         drop_out_param = 0.3
 
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
         # Dataset
         X_test = test_set.clone().to(device)
         y_test = torch.tensor(test_labels).to(device)
@@ -684,7 +672,7 @@ else:
         else:
             criterion = nn.MSELoss()
 
-        load_mlp_weights(model, "Weights_MLP_3_hidden_layers_to_use.pth")
+        load_mlp_weights(model, "Weights_MLP_3_hidden_layers_to_use.pth", device)
 
         # Test
         model.eval()  # Set the model to evaluation mode
@@ -725,8 +713,6 @@ else:
         num_classes = n_labels
         batch_size = 32
 
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
         # Dataset
         X_test = test_set.clone().to(device)
         y_test = torch.tensor(test_labels).to(device)
@@ -739,7 +725,7 @@ else:
         model = MoleRatsLSTM(input_dim, hidden_dim, num_layers, num_classes).to(device)
         criterion = nn.CrossEntropyLoss()
 
-        load_lstm_weights(model, "Weights_LSTM_to_use.pth")
+        load_lstm_weights(model, "Weights_LSTM_to_use.pth", device)
 
         test_loss, accuracy = evaluate_LSTM(model, test_loader, criterion, device)
 
