@@ -113,6 +113,10 @@ else:
     hw_type = "CPU"
 results_table = PrettyTable(["Classification method", "Accuracy, range: [0-1]", f"Training time, HW: {hw_type} [sec]"])
 
+# Select loss function
+use_cross_entropy = True  # Change this to False to use L2 loss
+if not use_cross_entropy:
+    raise ValueError("Using L2 loss (use_cross_entropy = false) is deprecated. Please change use_cross_entropy to true")
 
 if not from_pretrained:
     # Kmeans
@@ -197,9 +201,6 @@ if not from_pretrained:
         model = FullyConnectedNN(input_size, hidden_size, output_size).to(device)
         optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-        # Select loss function
-        use_cross_entropy = True    # Change this to False to use L2 loss
-
         if use_cross_entropy:
             criterion = nn.CrossEntropyLoss()
         else:
@@ -281,9 +282,6 @@ if not from_pretrained:
         model = DropoutMLP(input_size, hidden_size1, hidden_size2, output_size, drop_out_param).to(device)
         optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-        # Select loss function
-        use_cross_entropy = True  # Change this to False to use L2 loss
-
         if use_cross_entropy:
             criterion = nn.CrossEntropyLoss()
         else:
@@ -364,9 +362,6 @@ if not from_pretrained:
         model = BatchNormMLP(input_size, hidden_size1, hidden_size2, hidden_size3 ,output_size, drop_out_param).to(device)
         optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-        # Select loss function
-        use_cross_entropy = True  # Change this to False to use L2 loss
-
         if use_cross_entropy:
             criterion = nn.CrossEntropyLoss()
         else:
@@ -429,7 +424,6 @@ if not from_pretrained:
     if run_MoleRatsLSTM:
 
         # Hyperparameters
-        use_cross_entropy = True
         input_dim = 512
         hidden_dim = 256
         num_layers = 3
@@ -554,9 +548,6 @@ else:
         # Define the model, the optimizer, and the loss
         model = FullyConnectedNN(input_size, hidden_size, output_size).to(device)
 
-        # Select loss function
-        use_cross_entropy = True  # Change this to False to use L2 loss
-
         if use_cross_entropy:
             criterion = nn.CrossEntropyLoss()
         else:
@@ -608,9 +599,6 @@ else:
 
         # Define the model, the optimizer, and the loss
         model = DropoutMLP(input_size, hidden_size1, hidden_size2, output_size, drop_out_param).to(device)
-
-        # Select loss function
-        use_cross_entropy = True  # Change this to False to use L2 loss
 
         if use_cross_entropy:
             criterion = nn.CrossEntropyLoss()
@@ -664,9 +652,6 @@ else:
         # Define the model, the optimizer, and the loss
         model = BatchNormMLP(input_size, hidden_size1, hidden_size2, hidden_size3 ,output_size, drop_out_param).to(device)
 
-        # Select loss function
-        use_cross_entropy = True  # Change this to False to use L2 loss
-
         if use_cross_entropy:
             criterion = nn.CrossEntropyLoss()
         else:
@@ -706,7 +691,6 @@ else:
     if run_MoleRatsLSTM:
 
         # Hyperparameters
-        use_cross_entropy = True
         input_dim = 512
         hidden_dim = 256
         num_layers = 3
